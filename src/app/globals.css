@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+:root {
+  --background: #e0d7da;
+  --foreground: 222.2 84% 98%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+
+  --primary: #b68c9a;
+  --primarylight: #e4c2ce;
+  --secondary: #CD8D73;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary-foreground: 222.2 84% 4.9%;
+
+  --muted: 43 100% 92%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+
+  --accent: 36 100% 88%;
+  --accent-foreground: 222.2 84% 4.9%;
+
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 8 86% 74%;
+
+  --chat-bubble-user: 8 86% 74%;
+  --chat-bubble-ai: 10 40% 76.1%;
+  --upload-border: 25 100% 84%;
+  --gradient-warm: linear-gradient(135deg, hsl(8 86% 74%), hsl(25 100% 84%));
+  --gradient-subtle: linear-gradient(180deg, hsl(43 100% 92%), hsl(36 100% 88%));
+
+  --radius: 0.5rem;
+
+  --sidebar-background: 0 0% 98%;
+
+  --sidebar-foreground: 240 5.3% 26.1%;
+
+  --sidebar-primary: 240 5.9% 10%;
+
+  --sidebar-primary-foreground: 0 0% 98%;
+
+  --sidebar-accent: 240 4.8% 95.9%;
+
+  --sidebar-accent-foreground: 240 5.9% 10%;
+
+  --sidebar-border: 220 13% 91%;
+
+  --sidebar-ring: 217.2 91.2% 59.8%;
+
+  --primary-input: #ddbfc9;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-primary: var(--primary);
+  --color-primarylight: var(--primarylight);
+  --color-secondary: var(--secondary);
+  --color-tertiary: #9BF1F1;
+  --color-aasd:  var(--background);
+  --color-card: hsl(var(--card));
+  --primary-foreground: hsl(var(--primary-foreground));
+  --color-chat-bubble-user: var(--primary);
+  --color-chat-bubble-ai: hsl(var(--chat-bubble-ai));
+  --color-primary-input: var(--primary-input);
+}
+
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.background-noise::before {
+    content: "";
+    background-color: transparent;
+    background-image: url("/assets/noise.svg");
+    background-repeat: repeat;
+    background-size: auto;
+    /* background-position: center; */
+    opacity: 1; 
+    top: 0;
+    left: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.aasd{
+  background: var(--background);
+}
+
+.background-noise {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  @apply bg-gradient-to-b from-background to-secondary;
+}
+
+.blurglass {
+  /* From https://css.glass */
+background: rgba(255, 255, 255, 0.18);
+border-radius: 16px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border: 1px solid rgba(255, 255, 255, 0.33);
+}
