@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ChatMessage } from "@/components/ChatMessage";
-import { ArrowLeft, Send, FileText } from "lucide-react";
+import { ArrowLeft, Send, FileText, Bot } from "lucide-react";
 import { useParams } from "next/navigation";
 import { getChatHistory } from "@/services/chat.service";
 import { useRouter } from "next/navigation";
@@ -42,6 +42,7 @@ const Chat = () => {
       const conversationdata = await response.json();
 
       if (response) {
+        console.log('conversationdata');
         console.log(conversationdata);
         buildChatMessage(conversationdata);
         setFetchStatus("success");
@@ -84,9 +85,9 @@ const Chat = () => {
   
     const userMessage = {
       id: Date.now().toString(),
-      content: inputMessage,
+      message: inputMessage,
       sender: "user",
-      timestamp: new Date(),
+      created_at: new Date(),
     };
   
     if(messages.length > 0) {
@@ -103,7 +104,7 @@ const Chat = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          query: userMessage.content,
+          query: userMessage.message,
           namespace: documentId,
           topK: 5,
         }),
@@ -117,31 +118,69 @@ const Chat = () => {
         body: JSON.stringify({
           serialized: [...messages, userMessage].map((m) => ({
             type: m.sender === "user" ? "human" : "ai",
-            content: m.content,
+            content: m.message,
           })),
-          message: userMessage.content,
+          message: userMessage.message,
           index: documentId,
-          retrievedDocs: queryData.matches || [], // 👈 ADD THIS
+          retrievedDocs: queryData.matches || [],
         }),
       });
   
       const aiData = await aiResponseRes.json();
   
       if (aiData?.message) {
+        const userChat = await sendMessage({ chatbot_id: documentId, message: userMessage.message, sender: "user", session_id: documentId });
+        if(userChat) {
+          const aiChat = await sendMessage({ chatbot_id: documentId, message: aiData.message, sender: "ai", session_id: documentId });
+        }
         const aiMessage = {
           id: Date.now().toString() + "-ai",
-          content: aiData.message,
+          message: aiData.message,
           sender: "ai",
-          timestamp: new Date(),
+          created_at: new Date(),
         };
         setMessages((prev) => [...prev, aiMessage]); // ✅ correct
       }
     } catch (error) {
       console.error("Error in chat flow:", error);
     }
-  
+
     setIsLoading(false);
   };
+
+  async function sendMessage({ chatbot_id, message, sender, session_id }) {
+    console.log("sendMessage");
+    console.log(chatbot_id);
+    console.log(message);
+    console.log(sender);
+    console.log(session_id);
+    console.log(`sending ${sender} message`);
+    try {
+      const res = await fetch("/api/conversations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chatbot_id,
+          message,
+          sender,
+          session_id,
+        }),
+      });
+  
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to send message");
+      }
+  
+      const data = await res.json();
+      return data; // new conversation row
+    } catch (err) {
+      console.error("Error posting message:", err.message);
+      return null;
+    }
+  }
   
 
   const handleKeyPress = (e) => {
@@ -167,15 +206,15 @@ const Chat = () => {
   return (
     <>
       {fetchStatus === "loading" || !document ? (
-        <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center">
           <div className="text-primary">Loading...</div>
         </div>
       ) : (
-        <div className="aasd min-h-screen bg-gradient-subtle flex flex-col">
+        <div className="min-h-screen flex flex-col  w-screen bg-chatbg">
           {/* Header */}
           <header className=" border-b bg-card/80 backdrop-blur-sm sticky top-0 z-10 text-primary">
             <div className="container mx-auto px-4 py-4">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 text-primaryDark">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -186,10 +225,10 @@ const Chat = () => {
                   Back
                 </Button>
                 <div className="flex items-center gap-3">
-                  <FileText className="h-5 w-5 text-primary" />
+                  <FileText className="h-5 w-5 text-primaryDark" />
                   <div>
-                    <h1 className="font-semibold">{document.name}</h1>
-                    <p className="text-sm text-muted-foreground">
+                    <h1 className="font-semibold text-primaryDark">{document.name}</h1>
+                    <p className="text-sm text-primaryDark">
                       {document.size} • Uploaded {document.uploadDate}
                     </p>
                   </div>
@@ -199,23 +238,26 @@ const Chat = () => {
           </header>
 
           {/* Chat Messages */}
-          <div className="flex-1 container mx-auto px-4 py-6 max-w-4xl">
+          <div className="flex-1 container mx-auto px-4 py-6 max-w-4xl bg-chatbg  ">
             {messages.length > 0 && (
-              <div className="space-y-6">
+              <div className="space-y-6 ">
                 {messages?.map((message) => (
                   <ChatMessage key={message.id} message={message} />
                 ))}
                 {isLoading && (
                   <div className="flex justify-start">
+                    <div className="flex-shrink-0 w-8 h-8 mr-4 rounded-full bg-primary flex items-center justify-center">
+                      <Bot className="h-4 w-4 text-primary-foreground" />
+                    </div>
                     <div className="bg-chat-bubble-ai rounded-2xl px-4 py-3 max-w-[80%]">
                       <div className="flex gap-1">
-                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
                         <div
-                          className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                          className="w-2 h-2 bg-white rounded-full animate-bounce"
                           style={{ animationDelay: "0.1s" }}
                         ></div>
                         <div
-                          className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                          className="w-2 h-2 bg-white rounded-full animate-bounce"
                           style={{ animationDelay: "0.2s" }}
                         ></div>
                       </div>
@@ -235,13 +277,13 @@ const Chat = () => {
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Ask anything about your document..."
-                  className="flex-1 bg-primary-input text-white"
+                  className="flex-1 bg-primary-input "
                   disabled={isLoading}
                 />
                 <Button
                   onClick={handleSendMessage}
                   disabled={!inputMessage.trim() || isLoading}
-                  className="gap-2 bg-primary cursor-pointer text-white"
+                  className="gap-2 bg-primary cursor-pointer "
                 >
                   <Send className="h-4 w-4" />
                   Send

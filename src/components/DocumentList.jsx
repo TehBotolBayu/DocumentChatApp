@@ -1,6 +1,7 @@
 'use client'
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { formatDate } from "@/lib/general/date";
 import { FileText, MessageSquare, Calendar, HardDrive } from "lucide-react";
 
 const getFileIcon = (type) => {
@@ -33,12 +34,12 @@ export const DocumentList = ({ documents, onDocumentClick }) => {
   return (
     <div className="space-y-3 max-h-96 overflow-y-auto">
       {documents.map((doc) => (
-        <Card key={doc.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => onDocumentClick(doc)}>
+        <Card key={doc.id} className="p-4 hover:bg-primary/50 hover:shadow-lg transition-all cursor-pointer" onClick={() => onDocumentClick(doc)}>
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3 flex-1">
               <div className="text-2xl">{getFileIcon(doc.name.split(".").pop() || "unknown")}</div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium truncate">{doc.name}</h3>
+                <h3 className="font-medium text-ellipsis">{doc.name}</h3>
                 <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <HardDrive className="h-3 w-3" />
@@ -46,7 +47,7 @@ export const DocumentList = ({ documents, onDocumentClick }) => {
                   </div>
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    {doc.created_at}
+                    {formatDate(doc.created_at)}
                   </div>
                 </div>
               </div>

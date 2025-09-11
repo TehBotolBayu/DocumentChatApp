@@ -2,9 +2,22 @@
 import { Card } from "@/components/ui/card";
 import { User, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export const ChatMessage = ({ message }) => {
   const isUser = message.sender === "user";
+
+  const [time, setTime] = useState(null);
+
+  useEffect(() => {
+    if(typeof message?.created_at === 'string') {
+      setTime(new Date(message.created_at));
+    } else {
+      setTime(message.created_at);
+    }
+  }, [message]);
   
   return (
     <div className={cn("flex gap-3 ", isUser ? "justify-end" : "justify-start")}>
@@ -17,15 +30,19 @@ export const ChatMessage = ({ message }) => {
       <div className={cn(
         "rounded-2xl px-4 py-3 max-w-[80%] ",
         isUser 
-          ? "bg-chat-bubble-user text-primary-foreground" 
-          : "bg-chat-bubble-ai text-foreground"
+            ? "bg-chat-bubble-user text-primaryDark " 
+          : "bg-chat-bubble-ai text-white"
       )}>
-        <p className="whitespace-pre-wrap">{message.content}</p>
+        <div className="whitespace-pre-wrap markdown">
+           {(isUser) ? message.message : 
+           <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.message}</ReactMarkdown>
+           }
+        </div>
         <p className={cn(
-          "text-xs mt-1 opacity-70",
-          isUser ? "text-primary-foreground/70" : "text-muted-foreground"
+          "text-xs mt-1 opacity-70",  
+          isUser ? "text-primaryDark" : "text-muted-foreground"
         )}>
-          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          {time?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>
       
