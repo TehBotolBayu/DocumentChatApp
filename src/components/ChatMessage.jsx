@@ -46,7 +46,7 @@ export const ChatMessage = ({ message }) => {
             : "bg-chat-bubble-ai text-white"
         )}
       >
-        <div className="whitespace-pre-wrap markdown">
+        <div className="markdown">
           {isUser ? (
             message.message
           ) : (

@@ -218,7 +218,7 @@ const Chat = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => router.push("/")}
+                  onClick={() => router.push("/dashboard")}
                   className="gap-2"
                 >
                   <ArrowLeft className="h-4 w-4" />
